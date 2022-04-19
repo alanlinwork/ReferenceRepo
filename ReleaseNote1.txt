@@ -1,0 +1,32 @@
+ReleaseNote1.txt
+
+**************************************************
+**************************************************
+**************************************************
+	Release Note - For Deployer
+**************************************************
+-Instal Java JDK, Maven, and IntelliJ
+	-Hint: google download/install Java JDK/ Maven/IntelliJ /docker
+-Create jar:
+	- cd employee-producer(/target)
+	-run:
+			mvn clean install
+
+-Create Dockerfile:
+	- cd employee-producer/target, Edit Dockerfile:
+		From openjdk:8
+		copy ./target/employee-producer-0.0.1-SNAPSHOT.jar employee-producer-0.0.1-SNAPSHOT.jar
+		CMD ["java","-jar","employee-producer-0.0.1-SNAPSHOT.jar"]
+
+-start docker
+	Unix:
+		systemctl start docker
+
+-Build Image:
+		docker image build -t employee-producer .	
+		
+-Run the above image as a container And publish the docker port 8080 to port 8080.	
+	docker container run --name producer -p 8080:8080 -d employee-producer
+
+-Check logs
+	docker container logs producer
