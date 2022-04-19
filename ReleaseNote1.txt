@@ -1,0 +1,115 @@
+ReleaseNote1.txt
+
+**************************************************
+	Release Note - For Deployer
+**************************************************
+-Instal Java JDK, Maven, and IntelliJ
+	-Hint: google download/install Java JDK/ Maven/IntelliJ /docker
+-Create jar:
+	- cd employee-producer
+	-run below to generate employee-producer-0.0.1-SNAPSHOT.jar:
+			mvn clean install
+
+-Create Dockerfile for Producer:
+	- cd employee-producer/target, Edit Dockerfile:
+		From openjdk:8
+		copy ./target/employee-producer-0.0.1-SNAPSHOT.jar employee-producer-0.0.1-SNAPSHOT.jar
+		CMD ["java","-jar","employee-producer-0.0.1-SNAPSHOT.jar"]
+
+-start docker
+	Unix:
+		systemctl start docker
+
+-Build Image as employee-producer:
+		docker image build -t employee-producer .	
+		
+-Run Producer image as a container And publish the docker port 8080 to port 8080.	
+	docker container run --name producer -p 8080:8080 -d employee-producer
+
+- Go to browser, and verify that the application is deployed successfully with URL:
+	localhost:8080/employee
+
+-Check logs, and make sure all is good:
+	docker container logs producer
+
+- Stop producer image container
+................................................................	
+-Create Dockerfile for Consumer:
+	- cd employee-consumer/target, Edit Dockerfile:
+		From openjdk:8
+		copy ./target/employee-consumer-0.0.1-SNAPSHOT.jar employee-consumer-0.0.1-SNAPSHOT.jar
+		CMD ["java","-jar","employee-consumer-0.0.1-SNAPSHOT.jar"]
+	
+-Build the image as employee-consumer:
+
+	docker image build -t employee-consumer .
+
+-Run Comumer image:
+	//docker container run --name consumer -d employee-consumer
+	docker container run --name consumer -p 8081:8081 -d employee-consumer
+
+- Go to browser, and verify that the application is deployed successfully with URL:
+	localhost:8081/consumer
+
+-Check logs, and make sure all is good:
+	docker container logs consumer	
+
+- Stop consumer image container
+		docker stop consumer
+-------------------------------------------------
+
+-Check the available networks
+	docker network ls
+
+-Create our own network( will be of type bridge)
+		docker network create consumer-producer
+
+-Start the employee producer container on the newly created network.
+	docker container run --network consumer-producer --name producer -p 8080:8080 -d employee-producer
+
+-Start the employee consumer+ container on the newly created network.
+	docker container run --network consumer-producer --name consumer  -p 8081:8081 -d employee-consumer
+		 
+-Verify from browser as the above
+...............................................................
+-------------------------------------------------------------------------------------
+-Use docker-compose
+	 (If you installed Docker Desktop/Toolbox for either Windows or Mac, you already have Docker
+	 	Compose. For Linux, google and follow its install instruction)
+-Check docker-compose version
+		docker-compose --version
+
+-Creating the docker-compose.yml file as follows-
+	version: "3"
+	services:
+	  consumer:
+	    image: employee-consumer
+	    networks:
+	      - consumer-producer
+	    ports:
+	      - "8081:8081"	      
+	    depends_on:
+	      - producer
+	 
+	  producer:
+	    image: employee-producer
+	    ports:
+	      - "8080:8080"
+	    networks:
+	      - consumer-producer 
+	
+	networks:
+  	consumer-producer:
+
+-Start docker-compose
+	docker-compose up
+
+=======================================
+-For Docker Swarm, AWS EC2, Kubernetes, and deployment
+	across a cluster, please consult with the system administrator
+
+**************************************************
+------------------------------------------
+access code: 666 .j4v42n6s3.c8m/d3v8ps
+code2: d8ck3r/d8ck3r-n3tw8rki7g
+
